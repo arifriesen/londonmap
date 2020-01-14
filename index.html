@@ -15,12 +15,12 @@
 <style>
 #map {
 position: fixed;
-width: 50%;
+width: 75%;
 }
 #features {
-width: 50%;
-margin-left: 50%;
-font-family: sans-serif;
+width: 25%;
+margin-left: 75%;
+font-family: arial;
 overflow-y: scroll;
 background-color: #fafafa;
 }
@@ -32,36 +32,26 @@ opacity: 0.25;
 font-size: 13px;
 }
 section.active {
-opacity: 1;
+opacity: .8;
 }
 section:last-child {
 border-bottom: none;
 margin-bottom: 200px;
 }
 </style>
- 
+
 <div id="map"></div>
 <div id="features">
-<section id="oxcamman" class="active">
-<h3>Oxford & Cambridge Mansions</h3>
+<section id="london" class="active">
+<h3>Arup London</h3>
 <p>
-Marie and Adrien's flat. The apartment block dates back to the 1885,
-making it 27 years older than the house that Adrien grew up in during
-his younger years in Saskatoon, SK. The style of building is referred
-to as a mansion block, a style of housing for the nuveau riche prior to
-the first world war. The lifestyle wanted porter services, doormen, and
-other luxuries not common to the working class flats.
+Arup London was started in ... by the xx team and the...
 </p>
 </section>
-<section id="aldgate">
-<h3>Aldgate Station</h3>
+<section id="toronto">
+<h3>Arup Toronto</h3>
 <p>
-Arthur Cadogan West was found dead, head crushed in on train tracks
-at Aldgate Station at 6AM Tuesday morning. West worked at Woolwich
-Arsenal on the Bruce-Partington submarine, a secret military
-project. Plans for the submarine had been stolen and seven of the
-ten missing papers were found in West's possession. Mycroft implores
-Sherlock to take the case and recover the three missing papers.
+Toronto office...
 </p>
 </section>
 <section id="london-bridge">
@@ -140,45 +130,100 @@ Adapted from
 	mapboxgl.accessToken = 'pk.eyJ1IjoiYXJpZnJlZXoiLCJhIjoiY2p2aTRlc202MDIyZjQ5dWliZTBubDFociJ9.G9C-wx5sGC0qUYmdSWgwBQ';
 var map = new mapboxgl.Map({
 container: 'map',
-style: 'mapbox://styles/mapbox/streets-v11',
-center: [-0.15591514, 51.51830379],
-zoom: 15.5,
-bearing: 27,
-pitch: 45
+style: 'mapbox://styles/mapbox/light-v10',
+center: [-0.137742, 51.521733],
+zoom: 6,
+bearing: 0,
+pitch: 0,
+container: 'map',
+antialias: true
 });
- 
-var chapters = {
-'oxcamman': {
-bearing: 27,
-center: [-0.166496, 51.519184],
-zoom: 18.5,
-pitch: 20
+
+map.on('load', function() {
+// Insert the layer beneath any symbol layer.
+var layers = map.getStyle().layers;
+
+var labelLayerId;
+for (var i = 0; i < layers.length; i++) {
+if (layers[i].type === 'symbol' && layers[i].layout['text-field']) {
+labelLayerId = layers[i].id;
+break;
+}
+}
+
+map.addLayer(
+{
+'id': '3d-buildings',
+'source': 'composite',
+'source-layer': 'building',
+'filter': ['==', 'extrude', 'true'],
+'type': 'fill-extrusion',
+'minzoom': 15,
+'paint': {
+'fill-extrusion-color': '#aaa',
+
+// use an 'interpolate' expression to add a smooth transition effect to the
+// buildings as the user zooms in
+'fill-extrusion-height': [
+'interpolate',
+['linear'],
+['zoom'],
+15,
+0,
+15.05,
+['get', 'height']
+],
+'fill-extrusion-base': [
+'interpolate',
+['linear'],
+['zoom'],
+15,
+0,
+15.05,
+['get', 'min_height']
+],
+'fill-extrusion-opacity': 0.2
+}
 },
-'aldgate': {
+labelLayerId
+);
+});
+
+var chapters = {
+'london': {
 duration: 6000,
-center: [-0.07571203, 51.51424049],
-bearing: 150,
-zoom: 15,
-pitch: 0
+center: [-0.137742, 51.521733],
+bearing: 0,
+zoom: 6,
+pitch: 50,
+speed: 1
+},
+'toronto': {
+bearing: 0,
+center: [-79.384095, 43.670651],
+zoom: 6,
+pitch: 20,
+speed: 1
 },
 'london-bridge': {
 bearing: 90,
 center: [-0.08533793, 51.50438536],
 zoom: 13,
-speed: 0.6,
+speed: 1,
 pitch: 40
 },
 'woolwich': {
 bearing: 90,
 center: [0.05991101, 51.48752939],
-zoom: 12.3
+zoom: 12.3,
+speed: 1
 },
 'gloucester': {
 bearing: 45,
 center: [-0.18335806, 51.49439521],
 zoom: 15.3,
 pitch: 20,
-speed: 0.5
+speed: 1
 },
 'caulfield-gardens': {
 bearing: 180,
@@ -198,7 +243,7 @@ zoom: 14.3,
 pitch: 20
 }
 };
- 
+
 // On every scroll event, check which element is on screen
 window.onscroll = function() {
 var chapterNames = Object.keys(chapters);
@@ -210,25 +255,68 @@ break;
 }
 }
 };
- 
-var activeChapterName = 'baker';
+
+var activeChapterName = 'london';
 function setActiveChapter(chapterName) {
 if (chapterName === activeChapterName) return;
- 
+
 map.flyTo(chapters[chapterName]);
- 
+
+
 document.getElementById(chapterName).setAttribute('class', 'active');
 document.getElementById(activeChapterName).setAttribute('class', '');
- 
+
+
+
 activeChapterName = chapterName;
 }
- 
+
 function isElementOnScreen(id) {
 var element = document.getElementById(id);
 var bounds = element.getBoundingClientRect();
 return bounds.top < window.innerHeight && bounds.bottom > 0;
 }
+
+map.on('load', function() {
+var layers = map.getStyle().layers;
+// Find the index of the first symbol layer in the map style
+var firstSymbolId;
+for (var i = 0; i < layers.length; i++) {
+if (layers[i].type === 'symbol') {
+firstSymbolId = layers[i].id;
+break;
+}
+}
+
+
+map.addLayer(
+{
+'id': 'urban-areas-fill',
+'type': 'fill',
+'source': {
+'type': 'geojson',
+'data':
+'OfficeLocations.geojson'
+},
+'layout': {},
+'paint': {
+'fill-color': '#f08',
+'fill-opacity': 0.4
+}
+// This is the important part of this example: the addLayer
+// method takes 2 arguments: the layer as an object, and a string
+// representing another layer's name. if the other layer
+// exists in the stylesheet already, the new layer will be positioned
+// right before that layer in the stack, making it possible to put
+// 'overlays' anywhere in the layer stack.
+// Insert the layer beneath the first symbol layer.
+},
+firstSymbolId
+);
+});
+
+
 </script>
- 
+
 </body>
 </html>
