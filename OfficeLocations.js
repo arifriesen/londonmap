@@ -1,3 +1,4 @@
+var geojson_name={
 {
 "type": "FeatureCollection",
 "name": "OfficeLocations",
@@ -97,4 +98,5 @@
 { "type": "Feature", "properties": { "City": "Wroclaw", "Country": "Poland", "NumbEmployees": 2, "Ph_numb": "0048 71 343 10 81", "Arup_Region": "Europe" }, "geometry": { "type": "Point", "coordinates": [ 17.02691, 51.10825 ] } },
 { "type": "Feature", "properties": { "City": "Wuhan", "Country": "China", "NumbEmployees": 20, "Ph_numb": "+86 (0) 27 8575 3388", "Arup_Region": "East Asia Region" }, "geometry": { "type": "Point", "coordinates": [ 114.32472, 30.64353 ] } }
 ]
+}
 }
