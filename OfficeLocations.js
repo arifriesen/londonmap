@@ -1,4 +1,4 @@
-var geojson_name={
+var geojson_name=
 {
 "type": "FeatureCollection",
 "name": "OfficeLocations",
@@ -99,4 +99,4 @@ var geojson_name={
 { "type": "Feature", "properties": { "City": "Wuhan", "Country": "China", "NumbEmployees": 20, "Ph_numb": "+86 (0) 27 8575 3388", "Arup_Region": "East Asia Region" }, "geometry": { "type": "Point", "coordinates": [ 114.32472, 30.64353 ] } }
 ]
 }
-}
+
